@@ -14,6 +14,7 @@ This directory contains the RunPod Serverless entrypoint for `LTX-2.3`.
   - `num_frames`
   - `frame_rate`
   - `generate_audio`
+  - optional `result_upload_url`
 - Returns:
   - `ok`
   - `jobId`
@@ -21,12 +22,11 @@ This directory contains the RunPod Serverless entrypoint for `LTX-2.3`.
   - `videoPath`
   - `videoUrl` when `LTX_PUBLIC_BASE_URL` is configured
   - `hasAudio`
+  - `uploadStatus` when a final upload URL is provided
 
 ## Remaining production work
 
-1. Decide final media publishing strategy for Serverless output
-   - public object storage URL
-   - or shared mounted volume with a separate media host
+1. Decide whether `waoowaoo` will pass a presigned upload URL for final mp4 delivery
 2. Build and publish the worker image
 3. Create a RunPod Serverless endpoint, preferably Flex workers first
 4. Point `waoowaoo` from the temporary Pod tunnel to the new endpoint
