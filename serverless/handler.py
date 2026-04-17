@@ -4,7 +4,7 @@ from pathlib import Path
 
 import runpod
 
-from core import build_request, create_job_dir, run_generation, stage_input_image
+from core import build_request, create_job_dir, run_generation, stage_input_image, upload_file_to_url
 
 
 SERVERLESS_ROOT = Path("/tmp/ltx23_serverless")
@@ -49,6 +49,14 @@ def handler(job):
                 req["streaming_prefetch_count"] = int(job_input["streaming_prefetch_count"])
 
             result = run_generation(req, job_dir)
+            upload_url = job_input.get("result_upload_url")
+            upload_status = None
+            if isinstance(upload_url, str) and upload_url.strip():
+                upload_status = upload_file_to_url(
+                    Path(result["video_path"]),
+                    upload_url.strip(),
+                    content_type=str(job_input.get("result_content_type", "video/mp4")),
+                )
             return {
                 "ok": True,
                 "jobId": job_dir.name,
@@ -58,6 +66,7 @@ def handler(job):
                 "hasAudio": result.get("has_audio"),
                 "mediaName": result.get("media_name"),
                 "logPath": result.get("log_path"),
+                "uploadStatus": upload_status,
             }
     except Exception as exc:
         return {"ok": False, "error": f"{type(exc).__name__}: {exc}"}
