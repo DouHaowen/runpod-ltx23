@@ -6,7 +6,7 @@ import subprocess
 import uuid
 from pathlib import Path
 from urllib.parse import urlparse
-from urllib.request import urlopen
+from urllib.request import Request, urlopen
 
 
 APP_DIR = Path(__file__).resolve().parent
@@ -233,3 +233,17 @@ def media_url_for_name(media_name: str, public_base_url: str | None = None):
 def file_name_from_url(url: str):
     path = urlparse(url).path
     return Path(path).name
+
+
+def upload_file_to_url(file_path: Path, upload_url: str, content_type: str = "video/mp4"):
+    request = Request(
+        upload_url,
+        data=file_path.read_bytes(),
+        method="PUT",
+        headers={"Content-Type": content_type},
+    )
+    with urlopen(request) as response:
+        return {
+            "status": getattr(response, "status", None),
+            "ok": 200 <= getattr(response, "status", 200) < 300,
+        }
